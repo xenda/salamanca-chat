@@ -6,3 +6,4 @@ gem 'thin'
 gem 'mysql2'
 
 gem 'json'
+gem 'sanitize'
