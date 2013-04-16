@@ -38,14 +38,14 @@ class Application < Sinatra::Base
     now = Time.now.getutc
 
     comment = {
-      video_id: client.escape(params[:comment][:video_id]),
-      user_id: client.escape(params[:comment][:user_id]),
-      videoshow_id: client.escape(params[:comment][:videoshow_id]),
-      content: client.escape(Sanitize.clean(params[:comment][:content])),
+      video_id: client.escape(params[:comment][:video_id].to_s),
+      user_id: client.escape(params[:comment][:user_id].to_s),
+      videoshow_id: client.escape(params[:comment][:videoshow_id].to_s),
+      content: client.escape(Sanitize.clean(params[:comment][:content].to_s)),
       created_at: now,
       updated_at: now,
-      publish_on_twitter: client.escape(params[:comment][:publish_on_twitter]),
-      publish_on_facebook: client.escape(params[:comment][:publish_on_facebook])
+      publish_on_twitter: client.escape(params[:comment][:publish_on_twitter].to_s),
+      publish_on_facebook: client.escape(params[:comment][:publish_on_facebook].to_s)
 
     }
 
