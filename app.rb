@@ -22,6 +22,11 @@ class Application < Sinatra::Base
 
   configure :production, :development do
     enable :logging
+
+    Twitter.configure do |config|
+      config.consumer_key = 'VoI33HOQC9cjcweMFhZO2g'
+      config.consumer_secret = '5MGv6S4x3YxEBufmPlCw5KlB1xnHFY83x1c8tmIrA'
+    end
   end
 
   set :database, {
