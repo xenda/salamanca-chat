@@ -3,6 +3,7 @@ require 'sinatra'
 require 'json'
 require 'mysql2'
 require 'sanitize'
+require 'gabba'
 
 require './helpers'
 require './social_publisher'
@@ -45,7 +46,6 @@ class Application < Sinatra::Base
       updated_at: now,
       publish_on_twitter: client.escape(params[:comment][:publish_on_twitter].to_s),
       publish_on_facebook: client.escape(params[:comment][:publish_on_facebook].to_s)
-
     }
 
     publish_on = {
