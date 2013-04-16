@@ -85,7 +85,7 @@ def find_video(client, video_id)
 end
 
 def find_social_accounts(client, user_id)
-  results = client.query("SELECT id, provider, uid, auth_token, auth_secret FROM social_accounts WHERE user_id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
+  results = client.query("SELECT id, provider, uid, auth_token, auth_secret FROM social_accounts WHERE user_id = #{user_id.to_i}", symbolize_keys: true)
 
   results.to_a
 end
