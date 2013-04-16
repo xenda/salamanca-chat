@@ -4,6 +4,9 @@ require 'json'
 require 'mysql2'
 require 'sanitize'
 require 'gabba'
+require 'activesupport'
+
+include ActiveSupport::Inflector
 
 require './helpers'
 require './social_publisher'
@@ -32,8 +35,6 @@ class Application < Sinatra::Base
     content_type :json
     response['Access-Control-Allow-Origin'] = '*'
 
-    puts params
-
     client = Mysql2::Client.new(settings.database)
 
     now = Time.now.getutc
@@ -49,32 +50,39 @@ class Application < Sinatra::Base
     }
 
     publish_on = {
-      twitter: comment[:publish_on_twitter],
-      facebook: comment[:publish_on_facebook]
+      twitter: (comment[:publish_on_twitter] == "true"),
+      facebook: (comment[:publish_on_facebook] == "true")
     }
 
     as_chat_message = true
 
     client.query("INSERT INTO comments (video_id, user_id, comment_type, content, created_at, updated_at, publish_on_twitter, publish_on_facebook) VALUES (#{comment[:video_id]}, #{comment[:user_id]}, 'chat', '#{comment[:content]}', '#{comment[:created_at]}', '#{comment[:updated_at]}', #{comment[:publish_on_twitter]}, #{comment[:publish_on_facebook]})")
 
-    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1")
+    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, comments.published_on_facebook_at, comments.published_on_twitter_at, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1", symbolize_keys: true)
 
     messages = results_as_array(results)
 
+    puts messages.inspect
+
     if messages.count > 0
-      comment[:id] = messages.first["id"]
+      comment[:id] = messages.first[:id]
+      comment[:published_on_twitter_at] = messages.first[:published_on_twitter_at]
+      comment[:published_on_facebook_at] = messages.first[:published_on_facebook_at]
 
-      client.query("INSERT INTO activities (author_id, action, source_id, source_type, target_id, target_type, receiver_id) VALUES (#{comment[:user_id]}, 'create', #{comment[:id]}, 'Comment', #{comment[:video_id]}, 'Video', #{comment[:user_id]})")
+      client.query("INSERT INTO activities (author_id, action, source_id, source_type, target_id, target_type, receiver_id, created_at, updated_at) VALUES (#{comment[:user_id]}, 'create', #{comment[:id]}, 'Comment', #{comment[:video_id]}, 'Video', #{comment[:user_id]}, '#{comment[:created_at]}', '#{comment[:updated_at]}')")
 
-      video = client.query("SELECT id, title FROM videos WHERE id = #{comment[:video_id]}").first
+      comment[:video] = find_video(client, comment[:video_id])
+      comment[:user] = find_user(client, comment[:user_id])
+      comment[:user][:social_accounts] = find_social_accounts(client, comment[:user_id])
 
-      # social_publisher = SocialPublisher.new#(comment)
-      # social_publisher.url = "http://stoptv.pe/videos/#{comment[:video_id]}-#{parameterize(video["title"])}"
+      social_publisher = SocialPublisher.new(comment)
+      social_publisher.db_client = client
+      social_publisher.url = "http://stoptv.pe/videos/#{comment[:video_id]}-#{parameterize(comment[:video][:title])}"
 
-      # social_publisher.publish(publish_on, as_chat_message)
+      social_publisher.publish(publish_on, as_chat_message)
 
       gabba = Gabba::Gabba.new("UA-37832698-1", "http://stoptv.pe")
-      gabba.event("Activities", "Create Comment", "Comentario en \"#{video["title"]}\"", comment[:id], true)
+      gabba.event("Activities", "Create Comment", "Comentario en \"#{comment[:video][:title]}\"", comment[:id], true)
     end
 
     messages.to_a.to_json
@@ -90,7 +98,7 @@ class Application < Sinatra::Base
     user_id = client.escape(params[:user_id])
     since = Time.at(params[:since].to_i + 1).getutc
 
-    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.created_at >= '#{since}' ORDER BY created_at DESC")
+    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.created_at >= '#{since}' ORDER BY created_at DESC", symbolize_keys: true)
     
     results = results_as_array(results)
 

@@ -11,3 +11,4 @@ gem 'sanitize'
 gem 'gabba'
 gem 'koala'
 gem 'twitter'
+gem "activesupport", "~> 3.2.13"

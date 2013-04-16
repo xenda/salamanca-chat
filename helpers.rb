@@ -55,34 +55,37 @@ end
 
 def results_as_array(results)
   results.each do |row|
-    if row["user_id"]
-      row["created_at_as_timestamp"] = row["created_at"].to_i
-      row["created_at_as_text"] = distance_of_time_in_words(row["created_at"] + row["created_at"].utc_offset)
+    if row[:user_id]
+      row[:created_at_as_timestamp] = row[:created_at].to_i
+      row[:created_at_as_text] = distance_of_time_in_words(row[:created_at] + row[:created_at].utc_offset)
 
-      row["user"] = {}
+      row[:user] = {}
 
-      row["user"]["uid"] = row["user_uid"]
-      row["user"]["first_name"] = row["user_first_name"]
-      row["user"]["avatar"] = row["user_avatar_file_name"] ? row["user_avatar_file_name"] : "https://graph.facebook.com/#{row["user_uid"]}/picture"
+      row[:user][:uid] = row[:user_uid]
+      row[:user][:first_name] = row[:user_first_name]
+      row[:user][:avatar] = row[:user_avatar_file_name] ? row[:user_avatar_file_name] : "https://graph.facebook.com/#{row[:user_uid]}/picture"
 
-      row.delete("user_uid")
-      row.delete("user_first_name")
-      row.delete("user_avatar_file_name")
+      row.delete(:user_uid)
+      row.delete(:user_first_name)
+      row.delete(:user_avatar_file_name)
     end
   end
 end
 
-def parameterize(string, sep = '-')
-  # replace accented chars with their ascii equivalents
-  parameterized_string = transliterate(string)
-  # Turn unwanted chars into the separator
-  parameterized_string.gsub!(/[^a-z0-9\-_]+/, sep)
-  unless sep.nil? || sep.empty?
-    re_sep = Regexp.escape(sep)
-    # No more than one of the separator in a row.
-    parameterized_string.gsub!(/#{re_sep}{2,}/, sep)
-    # Remove leading/trailing separator.
-    parameterized_string.gsub!(/^#{re_sep}|#{re_sep}$/, '')
-  end
-  parameterized_string.downcase
+def find_user(client, user_id)
+  results = client.query("SELECT id, first_name, last_name, provider, uid FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
+
+  results.to_a.first
+end
+
+def find_video(client, video_id)
+  results = client.query("SELECT id, title FROM videos WHERE id = #{video_id.to_i} LIMIT 1", symbolize_keys: true)
+
+  results.to_a.first
+end
+
+def find_social_accounts(client, user_id)
+  results = client.query("SELECT id, provider, uid, auth_token, auth_secret FROM social_accounts WHERE user_id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
+
+  results.to_a
 end
