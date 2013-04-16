@@ -7,9 +7,6 @@ require 'sanitize'
 require './helpers'
 require './social_publisher'
 
-def create_activity
-end
-
 class Application < Sinatra::Base
   # set :database, {
   #   host: 'localhost',
@@ -17,9 +14,10 @@ class Application < Sinatra::Base
   #   database: 'salamanca_development',
   #   password: ''
   # }
+  set :logging, true
   set :database, {
-    host: 'localhost',
-    username: 'root',
+    host: '192.168.161.239',
+    username: 'stoptv',
     database: 'salamanca_production',
     password: 'stoptvSTOPTV2013'
   }
