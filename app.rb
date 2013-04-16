@@ -11,18 +11,18 @@ def create_activity
 end
 
 class Application < Sinatra::Base
-  set :database, {
-    host: 'localhost',
-    username: 'root',
-    database: 'salamanca_development',
-    password: ''
-  }
   # set :database, {
   #   host: 'localhost',
   #   username: 'root',
-  #   database: 'salamanca_production',
-  #   password: 'stoptvSTOPTV2013'
+  #   database: 'salamanca_development',
+  #   password: ''
   # }
+  set :database, {
+    host: 'localhost',
+    username: 'root',
+    database: 'salamanca_production',
+    password: 'stoptvSTOPTV2013'
+  }
 
   post '/chat_messages' do
     content_type :json
@@ -66,10 +66,10 @@ class Application < Sinatra::Base
 
       video = client.query("SELECT id, title FROM videos WHERE id = #{comment[:video_id]}").first
 
-      social_publisher = SocialPublisher.new#(comment)
-      social_publisher.url = "http://stoptv.pe/videos/#{comment[:video_id]}-#{parameterize(video["title"])}"
+      # social_publisher = SocialPublisher.new#(comment)
+      # social_publisher.url = "http://stoptv.pe/videos/#{comment[:video_id]}-#{parameterize(video["title"])}"
 
-      social_publisher.publish(publish_on, as_chat_message)
+      # social_publisher.publish(publish_on, as_chat_message)
 
       gabba = Gabba::Gabba.new("UA-37832698-1", "http://stoptv.pe")
       gabba.event("Activities", "Create Comment", "Comentario en \"#{video["title"]}\"", comment[:id], true)
