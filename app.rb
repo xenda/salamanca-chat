@@ -40,7 +40,6 @@ class Application < Sinatra::Base
     comment = {
       video_id: client.escape(params[:comment][:video_id].to_s),
       user_id: client.escape(params[:comment][:user_id].to_s),
-      videoshow_id: client.escape(params[:comment][:videoshow_id].to_s),
       content: client.escape(Sanitize.clean(params[:comment][:content].to_s)),
       created_at: now,
       updated_at: now,
@@ -56,9 +55,9 @@ class Application < Sinatra::Base
 
     as_chat_message = true
 
-    client.query("INSERT INTO comments (video_id, user_id, videoshow_id, comment_type, content, created_at, updated_at, publish_on_twitter, publish_on_facebook) VALUES (#{comment[:video_id]}, #{comment[:user_id]}, #{comment[:videoshow_id]}, 'chat', '#{comment[:content]}', '#{comment[:created_at]}', '#{comment[:updated_at]}', #{comment[:publish_on_twitter]}, #{comment[:publish_on_facebook]})")
+    client.query("INSERT INTO comments (video_id, user_id, comment_type, content, created_at, updated_at, publish_on_twitter, publish_on_facebook) VALUES (#{comment[:video_id]}, #{comment[:user_id]}, 'chat', '#{comment[:content]}', '#{comment[:created_at]}', '#{comment[:updated_at]}', #{comment[:publish_on_twitter]}, #{comment[:publish_on_facebook]})")
 
-    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.videoshow_id = #{comment[:videoshow_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1")
+    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1")
 
     messages = results_as_array(results)
 
