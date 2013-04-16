@@ -15,6 +15,11 @@ class Application < Sinatra::Base
   #   password: ''
   # }
   set :logging, true
+
+  configure :production, :development do
+    enable :logging
+  end
+
   set :database, {
     host: '192.168.161.239',
     username: 'stoptv',
