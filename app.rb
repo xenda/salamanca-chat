@@ -4,7 +4,7 @@ require 'json'
 require 'mysql2'
 require 'sanitize'
 require 'gabba'
-require 'activesupport'
+require 'active-support'
 
 include ActiveSupport::Inflector
 
