@@ -94,6 +94,9 @@ class Application < Sinatra::Base
   end
 
   get '/chat_messages' do
+    logger.info "Getting messages"
+    puts "Returning messages"
+
     content_type :json
     response['Access-Control-Allow-Origin'] = '*'
 
