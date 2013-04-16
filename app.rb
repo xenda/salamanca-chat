@@ -4,8 +4,8 @@ require 'json'
 require 'mysql2'
 require 'sanitize'
 
-require 'helpers'
-require 'social_publisher'
+require './helpers'
+require './social_publisher'
 
 def create_activity
 end
