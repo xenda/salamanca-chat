@@ -12,12 +12,12 @@ require './helpers'
 require './social_publisher'
 
 class Application < Sinatra::Base
-  # set :database, {
-  #   host: 'localhost',
-  #   username: 'root',
-  #   database: 'salamanca_development',
-  #   password: ''
-  # }
+  set :database, {
+    host: 'localhost',
+    username: 'root',
+    database: 'salamanca_development',
+    password: ''
+  }
   set :logging, true
 
   configure :production, :development do
@@ -29,12 +29,12 @@ class Application < Sinatra::Base
     end
   end
 
-  set :database, {
-    host: '192.168.161.239',
-    username: 'stoptv',
-    database: 'salamanca_production',
-    password: 'stoptvSTOPTV2013'
-  }
+  # set :database, {
+  #   host: '192.168.161.239',
+  #   username: 'stoptv',
+  #   database: 'salamanca_production',
+  #   password: 'stoptvSTOPTV2013'
+  # }
 
   post '/chat_messages' do
     content_type :json
@@ -120,5 +120,52 @@ class Application < Sinatra::Base
      logger.info ex.message
      logger.info ex.backtrace
     end
+  end
+
+  get '/:id/chat_feed' do
+    content_type :json
+
+    response['Access-Control-Allow-Origin'] =  "*" #request.env['HTTP_ORIGIN']
+    response['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS'
+    response['Access-Control-Max-Age'] = '1000'
+    response['Access-Control-Allow-Headers'] = '*,x-requested-with'
+    
+    client = Mysql2::Client.new(settings.database)
+
+    video_id = client.escape(params[:id])
+
+    conditions = ["comment_type = 'chat'", "video_id = #{video_id}"]
+
+    conditions << "id > #{client.escape(params[:after])}" if params[:after]
+    conditions << "id < #{client.escape(params[:before])}" if params[:before]
+
+    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY created_at DESC LIMIT 30", symbolize_keys: true)
+
+    messages = results_as_array(results, :big)
+
+    feed = messages.map{ |chat_message|
+      user = chat_message[:user]
+
+      {
+        :author_image => user[:avatar],
+        :author_name => user[:full_name],
+        :created_at => chat_message[:created_at],
+        :id => chat_message[:id],
+        :message => chat_message[:content],
+        :updated_at => chat_message[:updated_at],
+        :entry_type => 'CustomPost',
+        :service_data => nil,
+        :facebook? => (chat_message[:publish_on_facebook].to_s == "1"),
+        :twitter? => (chat_message[:publish_on_twitter].to_s == "1"),
+        :instagram? => false,
+        :sms? => false,
+        :email? => false,
+        :likes => votes_count(client, chat_message[:id]),
+        :retweets => nil,
+        :service => 'custom'
+      }
+    }
+
+    feed.to_json
   end
 end

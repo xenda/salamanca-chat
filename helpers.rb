@@ -53,7 +53,29 @@ def distance_of_time_in_words(from_time, to_time = Time.now, include_seconds = f
   end
 end
 
-def results_as_array(results)
+def avatar(id, user_avatar_file_name, style = :medium)
+  id_as_path = id.to_s.rjust(9, '0').chars.each_slice(3).to_a.map{ |chars| chars.join() }.join('/')
+  "https://s3.amazonaws.com/salamanca.herokuapp.com/users/avatars/#{id_as_path}/#{style}/#{user_avatar_file_name}"
+end
+
+def picture(uid, style = :medium)
+  size = ""
+
+  case style
+    when :medium
+      size = "?width=100&height=100"
+    when :big
+      size = "?width=200&height=200"
+  end
+  
+  "https://graph.facebook.com/#{uid}/picture#{size}"
+end
+
+def full_name(first_name, last_name = '')
+  "#{first_name} #{last_name}".strip
+end
+
+def results_as_array(results, avatar_style = :medium)
   results.each do |row|
     if row[:user_id]
       row[:created_at_as_timestamp] = row[:created_at].to_i
@@ -62,8 +84,11 @@ def results_as_array(results)
       row[:user] = {}
 
       row[:user][:uid] = row[:user_uid]
+      row[:user][:id] = row[:user_id]
       row[:user][:first_name] = row[:user_first_name]
-      row[:user][:avatar] = row[:user_avatar_file_name] ? row[:user_avatar_file_name] : "https://graph.facebook.com/#{row[:user_uid]}/picture"
+      row[:user][:last_name] = row[:user_last_name]
+      row[:user][:full_name] = full_name(row[:user_first_name], row[:user_last_name])
+      row[:user][:avatar] = row[:user_avatar_file_name] ? avatar(row[:user_id], row[:user_avatar_file_name], avatar_style) : picture(row[:user_uid], avatar_style)
 
       row.delete(:user_uid)
       row.delete(:user_first_name)
@@ -88,4 +113,10 @@ def find_social_accounts(client, user_id)
   results = client.query("SELECT id, provider, uid, auth_token, auth_secret FROM social_accounts WHERE user_id = #{user_id.to_i}", symbolize_keys: true)
 
   results.to_a
+end
+
+def votes_count(client, comment_id)
+  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id = #{comment_id} AND votable_type = 'Comment'", symbolize_keys: true).first
+
+  results[:votes_count]
 end
