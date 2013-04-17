@@ -149,10 +149,10 @@ class Application < Sinatra::Base
       {
         :author_image => user[:avatar],
         :author_name => user[:full_name],
-        :created_at => chat_message[:created_at],
+        :created_at => chat_message[:created_at].getlocal("-05:00"),
         :id => chat_message[:id],
         :message => chat_message[:content],
-        :updated_at => chat_message[:updated_at],
+        :updated_at => chat_message[:updated_at].getlocal("-05:00"),
         :entry_type => 'CustomPost',
         :service_data => nil,
         :facebook? => (chat_message[:publish_on_facebook].to_s == "1"),
