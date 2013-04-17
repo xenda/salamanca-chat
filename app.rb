@@ -12,12 +12,12 @@ require './helpers'
 require './social_publisher'
 
 class Application < Sinatra::Base
-  set :database, {
-    host: 'localhost',
-    username: 'root',
-    database: 'salamanca_development',
-    password: ''
-  }
+  # set :database, {
+  #   host: 'localhost',
+  #   username: 'root',
+  #   database: 'salamanca_development',
+  #   password: ''
+  # }
   set :logging, true
 
   configure :production, :development do
@@ -29,12 +29,12 @@ class Application < Sinatra::Base
     end
   end
 
-  # set :database, {
-  #   host: '192.168.161.239',
-  #   username: 'stoptv',
-  #   database: 'salamanca_production',
-  #   password: 'stoptvSTOPTV2013'
-  # }
+  set :database, {
+    host: '192.168.161.239',
+    username: 'stoptv',
+    database: 'salamanca_production',
+    password: 'stoptvSTOPTV2013'
+  }
 
   post '/chat_messages' do
     content_type :json
