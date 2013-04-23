@@ -19,6 +19,7 @@ class Application < Sinatra::Base
   #   password: ''
   # }
   set :logging, true
+  set :protection, :except => :json_csrf
 
   configure :production, :development do
     enable :logging
