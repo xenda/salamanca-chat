@@ -92,7 +92,7 @@ class Application < Sinatra::Base
         gabba = Gabba::Gabba.new("UA-37832698-1", "http://stoptv.pe")
         gabba.event("Activities", "Create Comment", "Comentario en \"#{comment[:video][:title]}\"", comment[:id], true)
       end
-
+      client.close
       messages.to_a.to_json
     end
   end
@@ -114,7 +114,7 @@ class Application < Sinatra::Base
       results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.created_at >= '#{since}' ORDER BY created_at DESC", symbolize_keys: true)
       
       results = results_as_array(results)
-
+      client.close
       results.to_a.to_json
     rescue Exception => ex
      logger.info ex.message
@@ -142,7 +142,8 @@ class Application < Sinatra::Base
     results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY created_at DESC LIMIT 30", symbolize_keys: true)
 
     messages = results_as_array(results, :big)
-
+    client.close
+    
     feed = messages.map{ |chat_message|
       user = chat_message[:user]
 
