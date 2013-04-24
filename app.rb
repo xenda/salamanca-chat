@@ -172,6 +172,7 @@ class Application < Sinatra::Base
   end
 
   get '/:id/chat_feed' do
+    begin
     content_type :json
 
     response['Access-Control-Allow-Origin'] =  "*" #request.env['HTTP_ORIGIN']
@@ -216,6 +217,11 @@ class Application < Sinatra::Base
     }
 
     client.close
+    content_type 'application/json'
     feed.to_json
+    rescue Exception => ex
+      logger.info ex.message
+      logger.info ex.backtrace
+    end
   end
 end
