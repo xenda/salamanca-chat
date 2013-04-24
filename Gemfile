@@ -7,7 +7,7 @@ gem 'mysql2'
 
 gem 'json'
 gem 'sanitize'
-
+gem 'pusher'
 gem 'gabba'
 gem 'koala'
 gem 'twitter'
