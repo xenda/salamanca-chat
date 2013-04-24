@@ -1,4 +1,3 @@
-# encoding: UTF-8
 require 'sinatra'
 require 'json'
 require 'mysql2'
@@ -36,6 +35,17 @@ class Application < Sinatra::Base
     database: 'salamanca_production',
     password: 'stoptvSTOPTV2013'
   }
+
+  before do
+    if request.request_method == 'OPTIONS'
+      response.headers["Access-Control-Allow-Origin"] = "*"
+      response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+      response.headers["Access-Control-Max-Age"] = "1000"
+      response.headers["Access-Control-Allow-Headers"] = "*,x-requested-with"
+      halt 200
+    end
+  end
+
 
   post '/votes' do
     content_type :json
