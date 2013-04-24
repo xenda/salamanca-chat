@@ -196,8 +196,8 @@ class Application < Sinatra::Base
 
     conditions = ["comment_type = 'chat'", "video_id = #{video_id}"]
 
-    conditions << "id > #{client.escape(params[:after])}" if params[:after]
-    conditions << "id < #{client.escape(params[:before])}" if params[:before]
+    conditions << "comments.id > #{client.escape(params[:after])}" if params[:after]
+    conditions << "comments.id < #{client.escape(params[:before])}" if params[:before]
 
     results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY created_at DESC LIMIT 30", symbolize_keys: true)
 
