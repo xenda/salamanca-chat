@@ -79,6 +79,13 @@ class Application < Sinatra::Base
     else
       client.query("INSERT INTO votes (votable_id, votable_type, user_id, created_at, updated_at) VALUES (#{vote[:votable_id]}, '#{vote[:votable_type]}', #{vote[:user_id]}, '#{now}', '#{now}')")
 
+      poll_item = find_poll_item(client, vote[:votable_id])
+
+      if poll_item
+        votes_count = poll_item[:votes_count] + 1
+        client.query("UPDATE poll_items SET votes_count = #{votes_count} WHERE id = #{poll_item[:id]}")
+      end
+
       results = client.query("SELECT votable_id, votable_type, user_id FROM votes WHERE votable_id=#{vote[:votable_id]} AND votable_type='#{vote[:votable_type]}' AND user_id=#{vote[:user_id]} AND created_at='#{now.to_s.gsub(' UTC', '')}' AND updated_at='#{now.to_s.gsub(' UTC', '')}' LIMIT 1", symbolize_keys: true)
 
       if results.to_a.count == 1
