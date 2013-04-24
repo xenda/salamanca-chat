@@ -4,6 +4,7 @@ require 'mysql2'
 require 'sanitize'
 require 'gabba'
 require 'active_support/all'
+require 'pusher'
 
 include ActiveSupport::Inflector
 
@@ -27,6 +28,11 @@ class Application < Sinatra::Base
       config.consumer_key = 'VoI33HOQC9cjcweMFhZO2g'
       config.consumer_secret = '5MGv6S4x3YxEBufmPlCw5KlB1xnHFY83x1c8tmIrA'
     end
+
+    Pusher.app_id = '39474'
+    Pusher.key = '21a2a768ce95c05bbd51'
+    Pusher.secret = 'd5371c0ee79f81a48374'
+
   end
 
   set :database, {
@@ -88,9 +94,20 @@ class Application < Sinatra::Base
         poll[:opened] = is_opened(poll)
       end
 
+
       client.close
+      send_to_pusher(poll)
       poll.to_json
     end
+  end
+
+  def send_to_pusher(poll)
+
+    #Get videoshow_id and video_id
+    videoshow_id = poll[:videoshow_id]
+    video_id = poll[:video_id]
+    #Send To Pusher
+     Pusher.trigger('on_air_video', 'create_poll', {'videoshow_id' => videoshow_id, 'video_id' => video_id})
   end
 
   post '/chat_messages' do
