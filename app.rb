@@ -37,6 +37,52 @@ class Application < Sinatra::Base
     password: 'stoptvSTOPTV2013'
   }
 
+  post '/votes' do
+    content_type :json
+    response['Access-Control-Allow-Origin'] = '*'
+
+    client = Mysql2::Client.new(settings.database)
+
+    now = Time.now.getutc
+
+    video_id = client.escape(params[:video_id].to_s)
+    current_user_id = client.escape(params[:user_id].to_s)
+
+    vote = {
+      votable_id: client.escape(params[:vote][:votable_id].to_s),
+      votable_type: client.escape(params[:vote][:votable_type].to_s),
+      user_id: client.escape(params[:user_id].to_s)
+    }
+
+    current_user = find_user(client, current_user_id)
+    poll_item = find_poll_item(client, vote[:votable_id])
+    poll = find_poll(client, poll_item[:poll_id])
+
+    if has_voted(client, current_user, poll)
+      { error: :already_voted }.to_json
+    else
+      client.query("INSERT INTO votes (votable_id, votable_type, user_id, created_at, updated_at) VALUES (#{vote[:votable_id]}, '#{vote[:votable_type]}', #{vote[:user_id]}, '#{now}', '#{now}')")
+
+      results = client.query("SELECT votable_id, votable_type, user_id FROM votes WHERE votable_id=#{vote[:votable_id]} AND votable_type='#{vote[:votable_type]}' AND user_id=#{vote[:user_id]} AND created_at='#{now.to_s.gsub(' UTC', '')}' AND updated_at='#{now.to_s.gsub(' UTC', '')}' LIMIT 1", symbolize_keys: true)
+
+      if results.to_a.count == 1
+        has_voted_poll = has_voted(client, current_user, poll)
+        poll[:poll_items] = find_poll_items(client, poll[:id])
+
+        poll[:poll_items].each do |poll_item|
+          poll_item[:to_percentage] = to_percentage(poll, poll_item)
+          poll_item[:has_chosen] = has_chosen(client, current_user, poll_item)
+          poll_item[:voters] = find_voters(client, poll_item)
+        end
+
+        poll[:opened] = is_opened(poll)
+      end
+
+      client.close
+      poll.to_json
+    end
+  end
+
   post '/chat_messages' do
     content_type :json
     response['Access-Control-Allow-Origin'] = '*'

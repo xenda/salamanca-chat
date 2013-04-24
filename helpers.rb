@@ -98,9 +98,13 @@ def results_as_array(results, avatar_style = :medium)
 end
 
 def find_user(client, user_id)
-  results = client.query("SELECT id, first_name, last_name, provider, uid FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
+  results = client.query("SELECT id, first_name, last_name, provider, uid, avatar_file_name FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
 
-  results.to_a.first
+  user = results.to_a.first
+  user[:full_name] = full_name(user[:first_name], user[:last_name])
+  user[:avatar] = user[:avatar_file_name] ? avatar(user[:id], user[:avatar_file_name]) : picture(user[:user_uid])
+
+  user
 end
 
 def find_video(client, video_id)
@@ -119,4 +123,75 @@ def votes_count(client, comment_id)
   results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id = #{comment_id} AND votable_type = 'Comment'", symbolize_keys: true).first
 
   results[:votes_count]
+end
+
+def find_poll_item(client, poll_item_id)
+  results = client.query("SELECT id, poll_id, title, votes_count FROM poll_items WHERE id = #{poll_item_id} LIMIT 1", symbolize_keys: true)
+
+  results.to_a.first
+end
+
+def find_poll(client, poll_id)
+  results = client.query("SELECT id, title, video_id, videoshow_id, closed FROM polls WHERE id = #{poll_id} LIMIT 1", symbolize_keys: true)
+
+  results.to_a.first
+end
+
+def find_poll_items(client, poll_id)
+  results = client.query("SELECT id, poll_id, title, votes_count FROM poll_items WHERE poll_id = #{poll_id}", symbolize_keys: true)
+
+  results.to_a
+end
+
+def has_voted(client, user, poll)
+  poll_item_ids = find_poll_items(client, poll[:id]).map { |poll_item| poll_item[:id] }
+
+  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id IN (#{poll_item_ids.join(',')}) AND votable_type = 'PollItem' AND user_id = #{user[:id]}", symbolize_keys: true).first
+
+  results[:votes_count] > 0
+end
+
+def is_opened(poll)
+  poll[:closed] == 0
+end
+
+def to_percentage(poll, poll_item, total = 100.0, unit = '%')
+  if total_votes(poll) > 0
+    ratio = (poll_item[:votes_count].to_f / total_votes(poll).to_f)
+  else
+    ratio = 0.0
+  end
+
+  "#{(ratio*total).round(0)}#{unit}"
+end
+
+def total_votes(poll)
+  poll[:poll_items].sum{ |item| item[:votes_count].to_f }
+end
+
+def has_chosen(client, user, poll_item)
+  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id = #{poll_item[:id]} AND votable_type = 'PollItem' AND user_id = #{user[:id]}", symbolize_keys: true).first
+
+  results[:votes_count] > 0
+end
+
+def find_voters(client, poll_item)
+  results = client.query("SELECT votes.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM votes JOIN users ON votes.user_id = users.id WHERE votes.votable_id = #{poll_item[:id]} AND votes.votable_type = 'PollItem' LIMIT 2", symbolize_keys: true)
+
+  results.each do |row|
+    if row[:user_id]
+      row[:user] = {}
+
+      row[:user][:uid] = row[:user_uid]
+      row[:user][:id] = row[:user_id]
+      row[:user][:first_name] = row[:user_first_name]
+      row[:user][:last_name] = row[:user_last_name]
+      row[:user][:full_name] = full_name(row[:user_first_name], row[:user_last_name])
+      row[:user][:avatar] = row[:user_avatar_file_name] ? avatar(row[:user_id], row[:user_avatar_file_name]) : picture(row[:user_uid])
+
+      row.delete(:user_uid)
+      row.delete(:user_first_name)
+      row.delete(:user_avatar_file_name)
+    end
+  end
 end
