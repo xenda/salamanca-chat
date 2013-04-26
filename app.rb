@@ -198,6 +198,9 @@ class Application < Sinatra::Base
       results = results_as_array(results)
 
       client.close
+
+      sleep 4000 + rand(60000) if video_id.to_i == 67
+
       results.to_a.to_json
     rescue Exception => ex
      logger.info ex.message
