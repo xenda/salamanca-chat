@@ -199,7 +199,7 @@ class Application < Sinatra::Base
 
       client.close
 
-      sleep (4 + rand(6)) if video_id.to_i == 67
+      #sleep (4 + rand(6)) if video_id.to_i == 67
 
       results.to_a.to_json
     rescue Exception => ex
