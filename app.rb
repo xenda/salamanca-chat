@@ -36,9 +36,9 @@ class Application < Sinatra::Base
   end
 
   set :database, {
-    host: '192.168.161.239',
-    username: 'stoptv',
-    database: 'salamanca_production',
+    host: 'database.chnoufcqts48.us-west-2.rds.amazonaws.com',
+    username: 'root',
+    database: 'stoptv_production',
     password: 'stoptvSTOPTV2013'
   }
 
@@ -199,7 +199,7 @@ class Application < Sinatra::Base
 
       client.close
 
-      sleep (4 + rand(6)) if video_id.to_i == 67
+      #sleep (4 + rand(6)) if video_id.to_i == 67
 
       results.to_a.to_json
     rescue Exception => ex

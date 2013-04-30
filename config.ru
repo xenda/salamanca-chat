@@ -1,5 +1,5 @@
-FileUtils.mkdir_p 'log' unless File.exists?('log')
-log = File.new("logs/sinatra.log", "a+")
+FileUtils.mkdir_p '/home/ubuntu/logs' unless File.exists?('/home/ubuntu/logs')
+log = File.new("/home/ubuntu/logs/sinatra.log", "a+")
 $stdout.reopen(log)
 $stderr.reopen(log)
 
