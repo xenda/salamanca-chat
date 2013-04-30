@@ -10,7 +10,7 @@ set :ssh_options, { :forward_agent => true }
 ssh_options[:keys] = [File.join(ENV["HOME"], ".ec2", "gsg-keypair")]
 # set :scm, :git # You can set :scm explicitly or Capistrano will make an intelligent guess based on known version control directory names
 # Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
-default_run_options[:pty] = true
+#default_run_options[:pty] = true
 #RUBBER_ROOT = "../salamanca"
 
 on :load do
@@ -22,8 +22,8 @@ end
 
 set :scm, :git
 
-#set :deploy_via, :copy
-set :deploy_via, :remote_cache
+set :deploy_via, :copy
+#set :deploy_via, :remote_cache
 # Easier to do system level config as root - probably should do it through
 # sudo in the future.  We use ssh keys for access, so no passwd needed
 set :user, 'root'
