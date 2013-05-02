@@ -1,4 +1,4 @@
-`ssh-add`
+#{}`ssh-add`
 require "bundler/capistrano"
 
 set :rails_env, Rubber.env
