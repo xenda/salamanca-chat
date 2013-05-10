@@ -5,7 +5,7 @@ set :rails_env, Rubber.env
 
 set :application, "tio"
 set :repository,  "git@github.com:HPNeo/tio.git"
-set :branch, "rubber"
+set :branch, "master"
 
 set :ssh_options, { :forward_agent => true }
 default_run_options[:pty] = true
