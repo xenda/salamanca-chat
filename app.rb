@@ -36,7 +36,7 @@ class Application < Sinatra::Base
   end
 
   set :database, {
-    host: 'database.chnoufcqts48.us-west-2.rds.amazonaws.com',
+    host: 'database1.chnoufcqts48.us-west-2.rds.amazonaws.com',
     username: 'root',
     database: 'stoptv_production',
     password: 'stoptvSTOPTV2013'
@@ -226,7 +226,7 @@ class Application < Sinatra::Base
     conditions << "comments.id > #{client.escape(params[:after])}" if params[:after]
     conditions << "comments.id < #{client.escape(params[:before])}" if params[:before]
 
-    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY comments.created_at DESC LIMIT 30", symbolize_keys: true)
+    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY comments.created_at DESC LIMIT 30", symbolize_keys: true)
 
     messages = results_as_array(results, :big)
     
