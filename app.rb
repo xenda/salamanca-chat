@@ -109,12 +109,11 @@ class Application < Sinatra::Base
   end
 
   def send_to_pusher(poll)
-
     #Get videoshow_id and video_id
     videoshow_id = poll[:videoshow_id]
     video_id = poll[:video_id]
     #Send To Pusher
-     Pusher.trigger('on_air_video', 'create_poll', {'videoshow_id' => videoshow_id, 'video_id' => video_id})
+    Pusher.trigger('on_air_video', 'create_poll', {'videoshow_id' => videoshow_id, 'video_id' => video_id})
   end
 
   post '/chat_messages' do
@@ -193,7 +192,7 @@ class Application < Sinatra::Base
       user_id = client.escape(params[:user_id])
       after = client.escape(params[:after])
 
-      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.id > #{after} AND users.banned = false ORDER BY comments.created_at ASC", symbolize_keys: true)
+      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.id > #{after} AND users.banned = false ORDER BY comments.created_at ASC", symbolize_keys: true)
       
       results = results_as_array(results)
 
