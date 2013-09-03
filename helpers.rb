@@ -68,10 +68,10 @@ def picture(user, style = :medium)
       size = "?width=200&height=200"
   end
   
-  if user[:user_social_avatar].to_s != "" || user[:social_avatar].to_s != ""
-    user[:user_social_avatar] || user[:social_avatar]
-  else
+  if user[:user_social_avatar].to_s == "" || user[:social_avatar].to_s == ""
     "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
+  else
+    user[:user_social_avatar] || user[:social_avatar]
   end
 end
 
