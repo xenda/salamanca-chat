@@ -188,9 +188,9 @@ class Application < Sinatra::Base
     begin
       client = Mysql2::Client.new(settings.database)
 
-      video_id = client.escape(params[:video_id])
-      user_id = client.escape(params[:user_id]).to_i
-      after = client.escape(params[:after])
+      video_id = client.escape(params[:video_id] || "").to_i
+      user_id = client.escape(params[:user_id] || "").to_i
+      after = client.escape(params[:after] || "").to_i
 
       results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.id > #{after} AND users.banned = false ORDER BY comments.created_at ASC", symbolize_keys: true)
       
