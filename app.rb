@@ -146,7 +146,7 @@ class Application < Sinatra::Base
 
       client.query("INSERT INTO comments (video_id, user_id, comment_type, content, created_at, updated_at, publish_on_twitter, publish_on_facebook) VALUES (#{comment[:video_id]}, #{comment[:user_id]}, 'chat', '#{comment[:content]}', '#{comment[:created_at]}', '#{comment[:updated_at]}', #{comment[:publish_on_twitter]}, #{comment[:publish_on_facebook]})")
 
-      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, comments.published_on_facebook_at, comments.published_on_twitter_at, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1", symbolize_keys: true)
+      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, comments.published_on_facebook_at, comments.published_on_twitter_at, users.nickname AS user_nickname, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1", symbolize_keys: true)
 
       messages = results_as_array(results)
 
@@ -192,7 +192,7 @@ class Application < Sinatra::Base
       user_id = client.escape(params[:user_id] || "").to_i
       after = client.escape(params[:after] || "").to_i
 
-      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.id > #{after} AND users.banned = false ORDER BY comments.created_at ASC", symbolize_keys: true)
+      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.nickname AS user_nickname, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.user_id != #{user_id} AND comments.id > #{after} AND users.banned = false ORDER BY comments.created_at ASC", symbolize_keys: true)
       
       results = results_as_array(results)
 
@@ -225,7 +225,7 @@ class Application < Sinatra::Base
     conditions << "comments.id > #{client.escape(params[:after])}" if params[:after]
     conditions << "comments.id < #{client.escape(params[:before])}" if params[:before]
 
-    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.avatar_file_name AS user_avatar_file_name, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY comments.created_at DESC LIMIT 30", symbolize_keys: true)
+    results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.updated_at, comments.videoshow_id, comments.user_id, comments.publish_on_facebook, comments.publish_on_twitter, users.nickname AS user_nickname, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name, users.last_name AS user_last_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE #{conditions.join(' AND ')} ORDER BY comments.created_at DESC LIMIT 30", symbolize_keys: true)
 
     messages = results_as_array(results, :big)
     
