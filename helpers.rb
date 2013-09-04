@@ -67,16 +67,16 @@ def picture(user, style = :medium)
     when :big
       size = "?width=200&height=200"
   end
-
-  if (user[:id] || user[:user_id]).to_s == "48802"
-    logger.info "#{user[:id] || user[:user_id]} ==========================="
-    logger.info "#{user[:user_social_avatar] || user[:social_avatar]}"
-    logger.info "#{(user[:user_social_avatar] || user[:social_avatar]).to_s == ""}"
-    logger.info "#{user[:user_social_avatar] || user[:social_avatar]}"
-    logger.info "=========================================================="
-  end
   
   if (user[:user_social_avatar] || user[:social_avatar]).to_s == ""
+    logger.info "#{user[:id] || user[:user_id]} : #{user[:uid] || user[:user_uid]} ==========================="
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "#{user[:user_social_avatar].to_s == ""}"
+    logger.info "#{user[:social_avatar].to_s == ""}"
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "============================================================================================="
     "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
   else
     user[:user_social_avatar] || user[:social_avatar]
