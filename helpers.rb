@@ -180,7 +180,13 @@ end
 def has_voted(client, user, poll)
   poll_item_ids = find_poll_items(client, poll[:id]).map { |poll_item| poll_item[:id] }
 
-  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id IN (#{poll_item_ids.join(',')}) AND votable_type = 'PollItem' AND user_id = #{user[:id]}", symbolize_keys: true).first
+  logger.info user.inspect
+
+  logger.info user[:id].inspect
+
+  logger.info "SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id IN (#{poll_item_ids.join(',')}) AND votable_type = 'PollItem' AND user_id = #{user[:user][:id]}"
+
+  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id IN (#{poll_item_ids.join(',')}) AND votable_type = 'PollItem' AND user_id = #{user[:user][:id]}", symbolize_keys: true).first
 
   results[:votes_count] > 0
 end
@@ -204,7 +210,7 @@ def total_votes(poll)
 end
 
 def has_chosen(client, user, poll_item)
-  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id = #{poll_item[:id]} AND votable_type = 'PollItem' AND user_id = #{user[:id]}", symbolize_keys: true).first
+  results = client.query("SELECT COUNT(id) AS votes_count FROM votes WHERE votable_id = #{poll_item[:id]} AND votable_type = 'PollItem' AND user_id = #{user[:user][:id]}", symbolize_keys: true).first
 
   results[:votes_count] > 0
 end
