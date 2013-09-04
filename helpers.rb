@@ -79,6 +79,15 @@ def picture(user, style = :medium)
     logger.info "============================================================================================="
     "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
   else
+    logger.info "#{user[:id] || user[:user_id]} : #{user[:uid] || user[:user_uid]} ==========================="
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "#{user[:user_social_avatar].to_s == ""}"
+    logger.info "#{user[:social_avatar].to_s == ""}"
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "============================================================================================="
+    "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
     user[:user_social_avatar] || user[:social_avatar]
   end
 end
