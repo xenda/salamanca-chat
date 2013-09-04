@@ -69,11 +69,11 @@ def picture(user, style = :medium)
   end
 
   if (user[:id] || user[:user_id]).to_s == "48802"
-    puts "#{user[:id] || user[:user_id]} ==========================="
-    puts "#{user[:user_social_avatar] || user[:social_avatar]}"
-    puts "#{(user[:user_social_avatar] || user[:social_avatar]).to_s == ""}"
-    puts "#{user[:user_social_avatar] || user[:social_avatar]}"
-    puts "=========================================================="
+    logger.info "#{user[:id] || user[:user_id]} ==========================="
+    logger.info "#{user[:user_social_avatar] || user[:social_avatar]}"
+    logger.info "#{(user[:user_social_avatar] || user[:social_avatar]).to_s == ""}"
+    logger.info "#{user[:user_social_avatar] || user[:social_avatar]}"
+    logger.info "=========================================================="
   end
   
   if (user[:user_social_avatar] || user[:social_avatar]).to_s == ""
