@@ -108,11 +108,11 @@ def results_as_array(results, avatar_style = :medium)
 end
 
 def find_user(client, user_id)
-  results = client.query("SELECT id, first_name, last_name, provider, uid, avatar_file_name, social_avatar, nickname FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
+  results = client.query("SELECT id AS user_id, first_name AS user_first_name, last_name AS user_last_name, provider AS user_provider, uid AS user_uid, avatar_file_name AS user_avatar_file_name, social_avatar AS user_social_avatar, nickname AS user_nickname FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
 
-  user = results.to_a.first
-  user[:full_name] = full_name(user)
-  user[:avatar] = user[:avatar_file_name] ? avatar(user[:id], user[:avatar_file_name]) : picture(user)
+  user = results_as_array(results.to_a).first
+  # user[:full_name] = full_name(user)
+  # user[:avatar] = user[:avatar_file_name] ? avatar(user[:id], user[:avatar_file_name]) : picture(user)
 
   user
 end
