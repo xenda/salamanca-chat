@@ -86,8 +86,10 @@ end
 def results_as_array(results, avatar_style = :medium)
   results.each do |row|
     if row[:user_id]
-      row[:created_at_as_timestamp] = row[:created_at].to_i
-      row[:created_at_as_text] = distance_of_time_in_words(row[:created_at] + row[:created_at].utc_offset)
+      if row[:created_at]
+        row[:created_at_as_timestamp] = row[:created_at].to_i
+        row[:created_at_as_text] = distance_of_time_in_words(row[:created_at] + row[:created_at].utc_offset)
+      end
 
       row[:user] = {}
 
