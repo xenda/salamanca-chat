@@ -68,46 +68,74 @@ def picture(user, style = :medium)
       size = "?width=200&height=200"
   end
   
-  if user[:user_social_avatar].to_s != "" || user[:social_avatar].to_s != ""
-    user[:user_social_avatar] || user[:social_avatar]
-  else
+  if (user[:user_social_avatar] || user[:social_avatar]).to_s == ""
+    logger.info "#{user[:id] || user[:user_id]} : #{user[:uid] || user[:user_uid]} (if) ==========================="
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "#{user[:user_social_avatar].to_s == ""}"
+    logger.info "#{user[:social_avatar].to_s == ""}"
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "============================================================================================="
     "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
+  else
+    logger.info "#{user[:id] || user[:user_id]} : #{user[:uid] || user[:user_uid]} (else) ==========================="
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "#{user[:user_social_avatar].to_s == ""}"
+    logger.info "#{user[:social_avatar].to_s == ""}"
+    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
+    logger.info "social_avatar: #{user[:social_avatar]}"
+    logger.info "============================================================================================="
+    "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
+    user[:user_social_avatar] || user[:social_avatar]
   end
 end
 
-def full_name(first_name, last_name = '')
-  "#{first_name} #{last_name}".strip
+def full_name(user)
+  if (user[:nickname] || user[:user_nickname]).to_s == ""
+    "#{user[:first_name] || user[:user_first_name]} #{user[:last_name] || user[:user_last_name]}".strip
+  else
+    user[:nickname] || user[:user_nickname]
+  end
 end
 
 def results_as_array(results, avatar_style = :medium)
   results.each do |row|
     if row[:user_id]
-      row[:created_at_as_timestamp] = row[:created_at].to_i
-      row[:created_at_as_text] = distance_of_time_in_words(row[:created_at] + row[:created_at].utc_offset)
+      if row[:created_at]
+        row[:created_at_as_timestamp] = row[:created_at].to_i
+        row[:created_at_as_text] = distance_of_time_in_words(row[:created_at] + row[:created_at].utc_offset)
+      end
 
       row[:user] = {}
 
       row[:user][:uid] = row[:user_uid]
       row[:user][:id] = row[:user_id]
-      row[:user][:first_name] = row[:user_first_name]
+      row[:user][:first_name] = row[:user_first_name] || row[:user_nickname]
       row[:user][:last_name] = row[:user_last_name]
-      row[:user][:full_name] = full_name(row[:user_first_name], row[:user_last_name])
+      row[:user][:full_name] = full_name(row)
       row[:user][:avatar] = row[:user_avatar_file_name] ? avatar(row[:user_id], row[:user_avatar_file_name], avatar_style) : picture(row, avatar_style)
+
+      logger.info "#{row[:user][:avatar]} ====================================================="
+      logger.info row[:user][:avatar]
+      logger.info "============================================================================"
 
       row.delete(:user_uid)
       row.delete(:user_first_name)
       row.delete(:user_avatar_file_name)
       row.delete(:user_social_avatar)
+      row.delete(:user_nickname)
     end
   end
 end
 
 def find_user(client, user_id)
-  results = client.query("SELECT id, first_name, last_name, provider, uid, avatar_file_name, social_avatar FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
+  results = client.query("SELECT id AS user_id, first_name AS user_first_name, last_name AS user_last_name, provider AS user_provider, uid AS user_uid, avatar_file_name AS user_avatar_file_name, social_avatar AS user_social_avatar, nickname AS user_nickname FROM users WHERE id = #{user_id.to_i} LIMIT 1", symbolize_keys: true)
 
-  user = results.to_a.first
-  user[:full_name] = full_name(user[:first_name], user[:last_name])
-  user[:avatar] = user[:avatar_file_name] ? avatar(user[:id], user[:avatar_file_name]) : picture(user)
+  user = results_as_array(results.to_a).first
+  # user[:full_name] = full_name(user)
+  # user[:avatar] = user[:avatar_file_name] ? avatar(user[:id], user[:avatar_file_name]) : picture(user)
 
   user
 end
@@ -181,7 +209,7 @@ def has_chosen(client, user, poll_item)
 end
 
 def find_voters(client, poll_item)
-  results = client.query("SELECT votes.user_id, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM votes JOIN users ON votes.user_id = users.id WHERE votes.votable_id = #{poll_item[:id]} AND votes.votable_type = 'PollItem' LIMIT 2", symbolize_keys: true)
+  results = client.query("SELECT votes.user_id, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.nickname AS user_nickname, users.uid AS user_uid, users.first_name AS user_first_name FROM votes JOIN users ON votes.user_id = users.id WHERE votes.votable_id = #{poll_item[:id]} AND votes.votable_type = 'PollItem' LIMIT 2", symbolize_keys: true)
 
   results.each do |row|
     if row[:user_id]
@@ -191,7 +219,7 @@ def find_voters(client, poll_item)
       row[:user][:id] = row[:user_id]
       row[:user][:first_name] = row[:user_first_name]
       row[:user][:last_name] = row[:user_last_name]
-      row[:user][:full_name] = full_name(row[:user_first_name], row[:user_last_name])
+      row[:user][:full_name] = full_name(row)
       row[:user][:avatar] = row[:user_avatar_file_name] ? avatar(row[:user_id], row[:user_avatar_file_name]) : picture(row)
 
       row.delete(:user_uid)
