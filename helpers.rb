@@ -69,25 +69,26 @@ def picture(user, style = :medium)
   end
   
   if (user[:user_social_avatar] || user[:social_avatar]).to_s == ""
-    logger.info "#{user[:id] || user[:user_id]} : #{user[:uid] || user[:user_uid]} (if) ==========================="
-    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
-    logger.info "social_avatar: #{user[:social_avatar]}"
-    logger.info "#{user[:user_social_avatar].to_s == ""}"
-    logger.info "#{user[:social_avatar].to_s == ""}"
-    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
-    logger.info "social_avatar: #{user[:social_avatar]}"
-    logger.info "============================================================================================="
+    logger.info "#{user[:uid] || user[:user_uid]} (if) ======================"
+    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
+    logger.info "social_avatar                        : #{user[:social_avatar]}"
+    logger.info "user[:user_social_avatar].to_s == "" : #{user[:user_social_avatar].to_s == ""}"
+    logger.info "user[:social_avatar].to_s == ""      : #{user[:social_avatar].to_s == ""}"
+    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
+    logger.info "social_avatar                        : #{user[:social_avatar]}"
+    logger.info "============================================================"
+    
     "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
   else
-    logger.info "#{user[:id] || user[:user_id]} : #{user[:uid] || user[:user_uid]} (else) ==========================="
-    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
-    logger.info "social_avatar: #{user[:social_avatar]}"
-    logger.info "#{user[:user_social_avatar].to_s == ""}"
-    logger.info "#{user[:social_avatar].to_s == ""}"
-    logger.info "user_social_avatar: #{user[:user_social_avatar]}"
-    logger.info "social_avatar: #{user[:social_avatar]}"
-    logger.info "============================================================================================="
-    "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
+    logger.info "#{user[:uid] || user[:user_uid]} (else) ===================="
+    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
+    logger.info "social_avatar                        : #{user[:social_avatar]}"
+    logger.info "user[:user_social_avatar].to_s == "" : #{user[:user_social_avatar].to_s == ""}"
+    logger.info "user[:social_avatar].to_s == ""      : #{user[:social_avatar].to_s == ""}"
+    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
+    logger.info "social_avatar                        : #{user[:social_avatar]}"
+    logger.info "============================================================"
+    
     user[:user_social_avatar] || user[:social_avatar]
   end
 end
@@ -117,9 +118,9 @@ def results_as_array(results, avatar_style = :medium)
       row[:user][:full_name] = full_name(row)
       row[:user][:avatar] = row[:user_avatar_file_name] ? avatar(row[:user_id], row[:user_avatar_file_name], avatar_style) : picture(row, avatar_style)
 
-      logger.info "#{row[:user][:avatar]} ====================================================="
+      logger.info "user_avatar ====================================================="
       logger.info row[:user][:avatar]
-      logger.info "============================================================================"
+      logger.info "================================================================="
 
       row.delete(:user_uid)
       row.delete(:user_first_name)
