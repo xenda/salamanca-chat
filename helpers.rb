@@ -67,29 +67,17 @@ def picture(user, style = :medium)
     when :big
       size = "?width=200&height=200"
   end
+
+  social_avatar = (user[:user_social_avatar] || user[:social_avatar])
   
-  if (user[:user_social_avatar] || user[:social_avatar]).to_s == ""
-    logger.info "#{user[:uid] || user[:user_uid]} (if) ======================"
-    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
-    logger.info "social_avatar                        : #{user[:social_avatar]}"
-    logger.info "user[:user_social_avatar].to_s == "" : #{user[:user_social_avatar].to_s == ""}"
-    logger.info "user[:social_avatar].to_s == ""      : #{user[:social_avatar].to_s == ""}"
-    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
-    logger.info "social_avatar                        : #{user[:social_avatar]}"
-    logger.info "============================================================"
-    
+  if social_avatar.to_s == ""
     "https://graph.facebook.com/#{user[:user_uid] || user[:uid]}/picture#{size}"
   else
-    logger.info "#{user[:uid] || user[:user_uid]} (else) ===================="
-    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
-    logger.info "social_avatar                        : #{user[:social_avatar]}"
-    logger.info "user[:user_social_avatar].to_s == "" : #{user[:user_social_avatar].to_s == ""}"
-    logger.info "user[:social_avatar].to_s == ""      : #{user[:social_avatar].to_s == ""}"
-    logger.info "user_social_avatar                   : #{user[:user_social_avatar]}"
-    logger.info "social_avatar                        : #{user[:social_avatar]}"
-    logger.info "============================================================"
-    
-    user[:user_social_avatar] || user[:social_avatar]
+    if social_avatar.match("facebook.com")
+      social_avatar + size
+    else
+      social_avatar
+    end
   end
 end
 
