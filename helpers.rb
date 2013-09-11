@@ -142,7 +142,7 @@ def find_user(client, user_id)
 end
 
 def find_video(client, video_id)
-  results = client.query("SELECT id, title FROM videos WHERE id = #{video_id.to_i} LIMIT 1", symbolize_keys: true)
+  results = client.query("SELECT id, title, videoshow_id FROM videos WHERE id = #{video_id.to_i} LIMIT 1", symbolize_keys: true)
 
   results.to_a.first
 end

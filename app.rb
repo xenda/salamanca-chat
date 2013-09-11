@@ -144,7 +144,14 @@ class Application < Sinatra::Base
     else
       as_chat_message = true
 
-      client.query("INSERT INTO comments (video_id, user_id, comment_type, content, created_at, updated_at, publish_on_twitter, publish_on_facebook) VALUES (#{comment[:video_id]}, #{comment[:user_id]}, 'chat', '#{comment[:content]}', '#{comment[:created_at]}', '#{comment[:updated_at]}', #{comment[:publish_on_twitter]}, #{comment[:publish_on_facebook]})")
+      begin
+        comment_video = find_video(client, comment[:video_id])
+        comment[:videoshow_id] = comment_video[:videoshow_id]
+      rescue Exception => e
+        comment[:videoshow_id] = nil
+      end
+
+      client.query("INSERT INTO comments (video_id, videoshow_id, user_id, comment_type, content, created_at, updated_at, publish_on_twitter, publish_on_facebook) VALUES (#{comment[:video_id]}, #{comment[:videoshow_id]}, #{comment[:user_id]}, 'chat', '#{comment[:content]}', '#{comment[:created_at]}', '#{comment[:updated_at]}', #{comment[:publish_on_twitter]}, #{comment[:publish_on_facebook]})")
 
       results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, comments.published_on_facebook_at, comments.published_on_twitter_at, users.nickname AS user_nickname, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM comments JOIN users ON comments.user_id = users.id WHERE comments.video_id = #{comment[:video_id]} AND comments.user_id = #{comment[:user_id]} AND comments.comment_type = 'chat' AND comments.created_at = '#{comment[:created_at].to_s.gsub(' UTC', '')}' AND comments.updated_at = '#{comment[:updated_at].to_s.gsub(' UTC', '')}' ORDER BY comments.created_at DESC LIMIT 1", symbolize_keys: true)
 
