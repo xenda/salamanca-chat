@@ -12,12 +12,6 @@ require './helpers'
 require './social_publisher'
 
 class Application < Sinatra::Base
-  # set :database, {
-  #   host: 'localhost',
-  #   username: 'root',
-  #   database: 'salamanca_development',
-  #   password: ''
-  # }
   set :logging, true
   set :protection, :except => :json_csrf
 
@@ -36,7 +30,7 @@ class Application < Sinatra::Base
   end
 
   set :database, {
-    host: 'database.chnoufcqts48.us-west-2.rds.amazonaws.com',
+    host: 'database1.chnoufcqts48.us-west-2.rds.amazonaws.com',
     username: 'root',
     database: 'stoptv_production',
     password: 'stoptvSTOPTV2013'
