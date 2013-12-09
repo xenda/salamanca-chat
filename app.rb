@@ -12,12 +12,6 @@ require './helpers'
 require './social_publisher'
 
 class Application < Sinatra::Base
-  # set :database, {
-  #   host: 'localhost',
-  #   username: 'root',
-  #   database: 'salamanca_development',
-  #   password: ''
-  # }
   set :logging, true
   set :protection, :except => :json_csrf
 
