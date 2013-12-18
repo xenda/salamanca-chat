@@ -199,7 +199,28 @@ class Application < Sinatra::Base
 
       client.close
 
-      #sleep (4 + rand(6)) if video_id.to_i == 67
+      results.to_a.to_json
+    rescue Exception => ex
+     logger.info ex.message
+     logger.info ex.backtrace
+    end
+  end
+
+  get '/previous_chat_messages' do
+    content_type :json
+    response['Access-Control-Allow-Origin'] = '*'
+
+    begin
+      client = Mysql2::Client.new(settings.database)
+
+      video_id = client.escape(params[:video_id] || "").to_i
+      before = client.escape(params[:before] || "").to_i
+
+      results = client.query("SELECT comments.id, comments.video_id, comments.content, comments.created_at, comments.videoshow_id, comments.user_id, users.nickname AS user_nickname, users.avatar_file_name AS user_avatar_file_name, users.social_avatar AS user_social_avatar, users.uid AS user_uid, users.first_name AS user_first_name FROM comments INNER JOIN users ON comments.user_id = users.id WHERE comments.comment_type = 'chat' AND comments.status != 'spam' AND comments.video_id = #{video_id} AND comments.id < #{before} AND users.banned = false ORDER BY comments.created_at ASC LIMIT 50", symbolize_keys: true)
+      
+      results = results_as_array(results)
+
+      client.close
 
       results.to_a.to_json
     rescue Exception => ex
