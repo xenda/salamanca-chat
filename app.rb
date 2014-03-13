@@ -30,9 +30,9 @@ class Application < Sinatra::Base
   end
 
   set :database, {
-    host: 'database1.chnoufcqts48.us-west-2.rds.amazonaws.com',
+    host: 'database.chnoufcqts48.us-west-2.rds.amazonaws.com',
     username: 'root',
-    database: 'stoptv_productio',
+    database: 'stoptv_production',
     password: 'stoptvSTOPTV2013'
   }
 
