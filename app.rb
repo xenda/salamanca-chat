@@ -1,4 +1,4 @@
-require 'sinatra'
+base1require 'sinatra'
 require 'json'
 require 'mysql2'
 require 'sanitize'
@@ -30,7 +30,7 @@ class Application < Sinatra::Base
   end
 
   set :database, {
-    host: 'database1.chnoufcqts48.us-west-2.rds.amazonaws.com',
+    host: 'database.chnoufcqts48.us-west-2.rds.amazonaws.com',
     username: 'root',
     database: 'stoptv_production',
     password: 'stoptvSTOPTV2013'
