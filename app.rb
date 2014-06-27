@@ -44,6 +44,7 @@ class Application < Sinatra::Base
       response.headers["Access-Control-Allow-Headers"] = "*,x-requested-with"
       halt 200
     end
+    
   end
 
 
