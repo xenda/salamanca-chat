@@ -54,7 +54,7 @@ class Application < Sinatra::Base
 
     client = Mysql2::Client.new(settings.database)
 
-    now = Time.now.getutc
+    now = Time.now.getutc.to_s.gsub(" UTC", "")
 
     video_id = client.escape(params[:video_id].to_s)
     current_user_id = client.escape(params[:user_id].to_s)
@@ -117,7 +117,7 @@ class Application < Sinatra::Base
 
     client = Mysql2::Client.new(settings.database)
 
-    now = Time.now.getutc
+    now = Time.now.getutc.to_s.gsub(" UTC", "")
 
     comment = {
       video_id: client.escape(params[:comment][:video_id].to_s),
