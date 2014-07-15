@@ -29,19 +29,19 @@ class Application < Sinatra::Base
 
   end
 
-  set :database, {
-    host: '172.31.64.10',
-    username: 'mysqlstoptv',
-    database: 'stoptv_production',
-    password: 'P4s1ll0.9153'
-  }
-
 #  set :database, {
-#    host: 'database.cryroepj2xyk.us-west-2.rds.amazonaws.com',
-#    username: 'root',
+#    host: '172.31.64.10',
+#    username: 'mysqlstoptv',
 #    database: 'stoptv_production',
-#    password: 'stoptvSTOPTV2013'
+#    password: 'P4s1ll0.9153'
 #  }
+
+  set :database, {
+    host: 'database.cryroepj2xyk.us-west-2.rds.amazonaws.com',
+    username: 'root',
+    database: 'stoptv_production',
+    password: 'stoptvSTOPTV2013'
+  }
 
 
   before do
