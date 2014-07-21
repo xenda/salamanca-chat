@@ -5,7 +5,7 @@ set :rails_env, Rubber.env
 
 set :application, "tio"
 set :repository,  "git@bitbucket.org:ccarruitero/salamanca-chat.git"
-set :branch, "master"
+set :branch, "vpc"
 
 set :ssh_options, { :forward_agent => true }
 default_run_options[:pty] = true
