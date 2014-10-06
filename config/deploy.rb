@@ -4,8 +4,8 @@ require "bundler/capistrano"
 set :rails_env, Rubber.env
 
 set :application, "tio"
-#set :repository,  "git@bitbucket.org:xenda/salamanca-chat.git"
-set :repository,  "git@github.com:xenda/salamanca-chat.git"
+set :repository,  "git@bitbucket.org:xenda/salamanca-chat.git"
+#set :repository,  "git@github.com:xenda/salamanca-chat.git"
 set :branch, "master"
 
 set :ssh_options, { :forward_agent => true }
