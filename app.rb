@@ -1,4 +1,4 @@
-wrequire 'sinatra'
+require 'sinatra'
 require 'json'
 require 'mysql2'
 require 'sanitize'
