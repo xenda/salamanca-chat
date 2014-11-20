@@ -39,7 +39,7 @@ class Application < Sinatra::Base
   set :database, {
     host: 'database1.cryroepj2xyk.us-west-2.rds.amazonaws.com',
     username: 'root',
-    database: 'stoptv_production',
+    database: 'stopv_production',
     password: 'stoptvSTOPTV2013'
   }
 
